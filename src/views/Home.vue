@@ -1,8 +1,6 @@
 <template>
   <div>
-    <el-icon :size="20">
-      <edit />
-    </el-icon>
+    <el-icon-basketball></el-icon-basketball>
     <el-button>I am ElButton</el-button>
   </div>
 </template>
