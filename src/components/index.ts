@@ -9,7 +9,7 @@ import zProgress from "./progress"
 import ZchooseTime from "./chooseTime"
 import ZchooseDate from "./chooseDate"
 import ZchooseCity from "./chooseCity"
-
+import zForm from "./form"
 const component = [
   chooseArea,
   chooseIcon,
@@ -21,6 +21,7 @@ const component = [
   ZchooseTime,
   ZchooseDate,
   ZchooseCity,
+  zForm,
 ]
 export default {
   install(app: App) {
