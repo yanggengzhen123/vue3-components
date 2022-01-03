@@ -1,7 +1,6 @@
 <template>
   <div>
-    <el-icon-basketball></el-icon-basketball>
-    <el-button>I am ElButton</el-button>
+    <el-button>I am Home</el-button>
   </div>
 </template>
 

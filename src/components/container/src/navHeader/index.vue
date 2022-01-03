@@ -26,4 +26,8 @@ let toggle = () => {
   align-items: center;
   cursor: pointer;
 }
+svg {
+  width: 1em;
+  height: 1em;
+}
 </style>

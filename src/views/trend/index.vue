@@ -1,5 +1,5 @@
 <template>
-  <div class="flex">
+  <div>
     <trend text="营业额"></trend>
     <trend text="销售额" type="down"></trend>
     <!-- slots插槽 用到hooks<useSlots> -->
