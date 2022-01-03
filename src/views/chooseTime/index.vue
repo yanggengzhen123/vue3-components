@@ -8,7 +8,10 @@
     ></z-chooseTime>
     <br />
     <br />
-    <z-chooseDate></z-chooseDate>
+    <z-chooseDate
+      @startChange="dateStartChange"
+      @endChange="dateEndChange"
+    ></z-chooseDate>
   </div>
 </template>
 
@@ -17,10 +20,20 @@ interface endValue {
   startTime: string
   endTime: string
 }
+interface dateEndValue {
+  startDate: Date
+  endDatev: Date
+}
 let startChange = (val: string) => {
   console.log(val)
 }
 let endChange = (val: endValue) => {
+  console.log(val)
+}
+let dateStartChange = (val: Date) => {
+  console.log(val)
+}
+let dateEndChange = (val: dateEndValue) => {
   console.log(val)
 }
 let startOptions = {

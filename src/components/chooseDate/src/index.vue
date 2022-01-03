@@ -5,6 +5,8 @@
         v-model="startDate"
         type="date"
         :placeholder="startPlaceholder"
+        :disabled-date="startDisabledDate"
+        v-bind="$attrs.startOptions"
       >
       </el-date-picker>
     </div>
@@ -14,6 +16,8 @@
         type="date"
         :placeholder="endPlaceholder"
         :disabled="endDateDisabled"
+        :disabled-date="endDisabledDate"
+        v-bind="$attrs.endOptions"
       >
       </el-date-picker>
     </div>
@@ -21,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, watch } from "vue"
 let props = defineProps({
   // 开始日期的占位符
   startPlaceholder: {
@@ -48,8 +52,40 @@ let endDateDisabled = ref<boolean | undefined>(true)
 // 禁用开始日期的函数
 let startDisabledDate = (time: Date) => {
   if (props.disableToday) {
+    return time.getTime() < Date.now() - 1000 * 60 * 60 * 24
   }
 }
+let endDisabledDate = (time: Date) => {
+  if (startDate.value) {
+    return time.getTime() < startDate.value.getTime() + 1000 * 60 * 60 * 24
+  }
+}
+let emits = defineEmits(["startChange", "endChange"])
+// 监听开始的事件
+watch(
+  () => startDate.value,
+  (val: Date | undefined) => {
+    if (!val) {
+      endDateDisabled.value = true
+      endDate.value = undefined
+    } else {
+      emits("startChange", val)
+      endDateDisabled.value = false
+    }
+  }
+)
+// 监听结束日期的函数
+watch(
+  () => endDate.value,
+  (val: Date | undefined) => {
+    if (val) {
+      emits("endChange", {
+        startDate: startDate.value,
+        endDate: val,
+      })
+    }
+  }
+)
 </script>
 
 <style scoped></style>
