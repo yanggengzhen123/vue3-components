@@ -45,4 +45,23 @@ export interface FormOptions {
   }
   // 表单的子元素(例如下拉框的option，多选框或单选框中的checkbox)
   children?: FormOptions[]
+  // 单独处理上传组件的属性和方法
+  uploadAttrs?: {
+    action: string //上传地址
+    headers?: object //设置上传的请求头部
+    method?: "post" | "put" | "get" //设置上传请求方法
+    multiple?: boolean //是否支持多选文件
+    data?: object //上传时附带的额外参数
+    name?: string //上传的文件字段名
+    withCredentials?: boolean //支持发送cookie凭证信息
+    showFileList?: boolean //是否显示已上传文件列表
+    drag?: boolean //是否启用拖拽上传
+    accept?: string // 接受上传的文件类型
+    thumbnailMode?: boolean //是否显示缩略图
+    fileList?: any[] //上传的文件列表
+    listType?: "text" | "picture" | "picture-card" //文件列表的类型
+    autoUpload?: boolean
+    disabled?: boolean
+    limit?: number
+  }
 }

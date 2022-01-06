@@ -20,8 +20,27 @@
           v-model="model[item.prop!]"
         ></component>
         <!-- upload组件特殊处理 -->
-        <el-upload v-else></el-upload>
+        <el-upload
+          v-else
+          v-bind="item.uploadAttrs"
+          :on-preview="onPreview"
+          :on-remove="onRemove"
+          :on-success="onSuccess"
+          :on-error="onError"
+          :on-progress="onProgress"
+          :on-change="onChange"
+          :before-upload="beforeUpload"
+          :before-remove="beforeRemove"
+          :http-request="httpRequest"
+          :on-exceed="onExceed"
+        >
+          <slot name="uploadArea"></slot>
+          <template #tip>
+            <slot name="uploadTip"></slot>
+          </template>
+        </el-upload>
       </el-form-item>
+      <!-- checkbox-group select等 -->
       <el-form-item
         v-if="item.children && item.children.length"
         :prop="item.prop"
@@ -57,6 +76,10 @@ let props = defineProps({
     type: Array as PropType<FormOptions[]>,
     required: true,
   },
+  // 用户自定义上传方法
+  httpRequest: {
+    type: Function,
+  },
 })
 let model = ref<any>(null)
 let rules = ref<any>(null)
@@ -85,6 +108,45 @@ watch(
   },
   { deep: true }
 )
+// upload上传组件的所有方法
+let emits = defineEmits([
+  "on-preview",
+  "on-remove",
+  "on-success",
+  "on-error",
+  "on-progress",
+  "on-change",
+  "before-upload",
+  "before-remove",
+  "on-exceed",
+])
+const onPreview = () => {
+  emits("on-preview")
+}
+const onRemove = (file: any, fileList: any) => {
+  emits("on-remove", { file, fileList })
+}
+const onSuccess = (response: any, file: any, fileList: any) => {
+  emits("on-success", { response, file, fileList })
+}
+const onError = (err: any, file: any, fileList: any) => {
+  emits("on-error", { err, file, fileList })
+}
+const onProgress = (event: any, file: any, fileList: any) => {
+  emits("on-progress", { event, file, fileList })
+}
+const onChange = (file: any, fileList: any) => {
+  emits("on-change", { file, fileList })
+}
+const beforeUpload = (file: any) => {
+  emits("before-upload", { file })
+}
+const beforeRemove = (file: any, fileList: any): any => {
+  emits("before-remove", { file, fileList })
+}
+const onExceed = (files: any, fileList: any) => {
+  emits("on-exceed", { files, fileList })
+}
 </script>
 
 <style scoped></style>

@@ -1,10 +1,29 @@
 <template>
   <div>
-    <z-form :options="options" label-width="100px"></z-form>
+    <z-form
+      :options="options"
+      label-width="100px"
+      @on-preview="handlePreview"
+      @on-remove="handleRemove"
+      @before-remove="beforeRemove"
+      @on-success="handleSuccess"
+      @on-onExceed="handleExceed"
+      @on-change="handleChange"
+      @beforeUpload="handleBeforeUpload"
+    >
+      <template #uploadArea>
+        <el-button type="primary">Click to upload</el-button>
+      </template>
+      <template #uploadTip>
+        <div style="color: #ccc">jpg/png文件小于500kb</div>
+      </template>
+    </z-form>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ElMessage, ElMessageBox } from "element-plus"
+import type { UploadFile } from "element-plus/es/components/upload/src/upload.type"
 import { FormOptions } from "../../components/form/src/types/types"
 let options: FormOptions[] = [
   {
@@ -156,6 +175,11 @@ let options: FormOptions[] = [
     type: "upload", //上传
     label: "上传",
     prop: "pic",
+    uploadAttrs: {
+      action: "https://jsonplaceholder.typicode.com/posts/",
+      multiple: true,
+      limit: 3,
+    },
     rules: [
       {
         required: true,
@@ -165,6 +189,41 @@ let options: FormOptions[] = [
     ],
   },
 ]
+interface uploadFile {
+  file?: UploadFile
+  fileList?: UploadFile[]
+  files?: FileList
+  response?: Response
+}
+const handleRemove = ({ file, fileList }: uploadFile) => {
+  console.log(file, fileList)
+}
+const handlePreview = (file: UploadFile) => {
+  console.log(file)
+}
+const handleExceed = ({ files, fileList }: uploadFile) => {
+  ElMessage.warning(
+    `The limit is 3, you selected ${files!.length} files this time, add up to ${
+      files!.length + fileList!.length
+    } totally`
+  )
+}
+const beforeRemove = ({ file, fileList }: uploadFile) => {
+  return ElMessageBox.confirm(`Cancel the transfert of ${file!.name} ?`)
+}
+const handleSuccess = ({ response, file, fileList }: uploadFile) => {
+  console.log("handleSuccess")
+}
+const handleChange = ({ file, fileList }: uploadFile) => {
+  console.log(file)
+  console.log("====================================")
+  console.log(fileList)
+  console.log("====================================")
+}
+const handleBeforeUpload = (file: UploadFile) => {
+  console.log("handleBeforeUpload")
+  console.log(file)
+}
 </script>
 
 <style scoped></style>
