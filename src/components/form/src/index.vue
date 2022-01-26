@@ -1,5 +1,6 @@
 <template>
   <el-form
+    ref="form"
     v-if="model"
     :validate-on-rule-change="false"
     :model="model"
@@ -13,7 +14,7 @@
         :label="item.label"
       >
         <component
-          v-if="item.type !== 'upload'"
+          v-if="item.type !== 'upload' && item.type !== 'editor'"
           :placeholder="item.placeholder"
           v-bind="item.attrs"
           :is="`el-${item.type}`"
@@ -21,7 +22,7 @@
         ></component>
         <!-- upload组件特殊处理 -->
         <el-upload
-          v-else
+          v-else-if="item.type === 'upload'"
           v-bind="item.uploadAttrs"
           :on-preview="onPreview"
           :on-remove="onRemove"
@@ -39,6 +40,7 @@
             <slot name="uploadTip"></slot>
           </template>
         </el-upload>
+        <div id="editor" v-else-if="item.type === 'editor'"></div>
       </el-form-item>
       <!-- checkbox-group select等 -->
       <el-form-item
@@ -56,20 +58,26 @@
             v-for="(child, i) in item.children"
             :key="i"
             :is="`el-${child.type}`"
-            :label="child.label"
+            :label="child.value"
             :value="child.value"
           >
+            {{ child.label }}
           </component>
         </component>
       </el-form-item>
     </template>
+    <el-form-item>
+      <slot name="action" :form="form" :model="model"></slot>
+    </el-form-item>
   </el-form>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted, watch } from "vue"
+import { PropType, ref, onMounted, watch, nextTick } from "vue"
 import { FormOptions } from "./types/types"
 import cloneDeep from "lodash/cloneDeep"
+import { UploadFile } from "element-plus/es/components/upload/src/upload.type"
+import E from "wangeditor"
 let props = defineProps({
   // 表单的配置项
   options: {
@@ -83,6 +91,9 @@ let props = defineProps({
 })
 let model = ref<any>(null)
 let rules = ref<any>(null)
+let form = ref<any>(null)
+let edit = ref()
+let refUpload = ref(null)
 let initForm = () => {
   if (props.options && props.options.length) {
     let m: any = {}
@@ -90,13 +101,51 @@ let initForm = () => {
     props.options.map((item: FormOptions) => {
       m[item.prop!] = item.value
       r[item.prop!] = item.rules
+      if (item.type === "editor") {
+        // 初始化富文本操作
+        nextTick(() => {
+          if (document.getElementById("editor")) {
+            //创建富文本编辑器
+            const editor = new E("#editor")
+            editor.config.placeholder = item.placeholder!
+            editor.create()
+            // 初始化富文本内容
+            editor.txt.html(item.value)
+            editor.config.onchange = (newHtml: string) => {
+              model.value[item.prop!] = newHtml
+            }
+            edit.value = editor
+          }
+        })
+      }
     })
     model.value = cloneDeep(m)
     rules.value = cloneDeep(r)
-    console.log(model.value)
-    console.log(rules.value)
   }
 }
+
+// 重写重置表单方法
+let resetFields = () => {
+  // 重置element-plus的表单
+  console.log(form)
+  form.value.resetFields()
+  // 重置editor为初始值（富文本编辑器的内容）
+  if (props.options && props.options.length) {
+    let editorItem = props.options.find((item) => item.type === "editor")!
+    edit.value.txt.html(editorItem.value)
+  }
+}
+// 表单验证
+let validate = () => {
+  console.log(form)
+  return form.value.validate()
+}
+// vue3新增分发方法。移除$children
+defineExpose({
+  resetFields, // 重置表单
+  validate, // 表单验证
+})
+let test = ref()
 onMounted(() => {
   initForm()
 })
@@ -123,28 +172,35 @@ let emits = defineEmits([
 const onPreview = () => {
   emits("on-preview")
 }
-const onRemove = (file: any, fileList: any) => {
+const onRemove = (file: UploadFile, fileList: UploadFile[]) => {
   emits("on-remove", { file, fileList })
 }
-const onSuccess = (response: any, file: any, fileList: any) => {
-  emits("on-success", { response, file, fileList })
+const onSuccess = (response: any, file: UploadFile, fileList: UploadFile[]) => {
+  // 上传成功
+  let uploadItem = props.options.find((item) => item.type === "upload")
+  model.value[uploadItem!.prop!] = { response, file, fileList }
+  emits("on-success", {
+    response,
+    file,
+    fileList,
+  })
 }
-const onError = (err: any, file: any, fileList: any) => {
+const onError = (err: Error, file: UploadFile, fileList: UploadFile[]) => {
   emits("on-error", { err, file, fileList })
 }
-const onProgress = (event: any, file: any, fileList: any) => {
+const onProgress = (event: Event, file: UploadFile, fileList: UploadFile[]) => {
   emits("on-progress", { event, file, fileList })
 }
-const onChange = (file: any, fileList: any) => {
+const onChange = (file: UploadFile, fileList: UploadFile[]) => {
   emits("on-change", { file, fileList })
 }
-const beforeUpload = (file: any) => {
+const beforeUpload = (file: UploadFile) => {
   emits("before-upload", { file })
 }
-const beforeRemove = (file: any, fileList: any): any => {
+const beforeRemove = (file: UploadFile, fileList: UploadFile[]): any => {
   emits("before-remove", { file, fileList })
 }
-const onExceed = (files: any, fileList: any) => {
+const onExceed = (files: FileList, fileList: UploadFile) => {
   emits("on-exceed", { files, fileList })
 }
 </script>

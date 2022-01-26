@@ -1,36 +1,29 @@
 <template>
   <div>
-    <z-form
-      ref="form"
+    <el-button type="primary" @click="open">open</el-button>
+    <modalForm
+      v-model:visible="visible"
+      title="编辑用户"
+      width="50%"
       :options="options"
-      label-width="100px"
-      @on-preview="handlePreview"
-      @on-remove="handleRemove"
-      @before-remove="beforeRemove"
-      @on-success="handleSuccess"
-      @on-onExceed="handleExceed"
-      @on-change="handleChange"
-      @beforeUpload="handleBeforeUpload"
     >
-      <template #uploadArea>
-        <el-button type="primary">Click to upload</el-button>
+      <template #footer="{ form }">
+        <el-button @click="cancel(form)">取消</el-button>
+        <el-button type="primary" @click="confirm(form)">确认</el-button>
       </template>
-      <template #uploadTip>
-        <div style="color: #ccc">jpg/png文件小于500kb</div>
-      </template>
-      <template #action="scope">
-        <el-button type="primary" @click="onSubmit(scope)">确认</el-button>
-        <el-button @click="resetForm">重置</el-button>
-      </template>
-    </z-form>
+    </modalForm>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ElMessage, ElMessageBox } from "element-plus"
-import type { UploadFile } from "element-plus/es/components/upload/src/upload.type"
-import { ref, onMounted } from "vue"
+import { ElMessage } from "element-plus"
+import { ref } from "vue"
 import { FormOptions } from "../../components/form/src/types/types"
+
+let visible = ref<boolean>(false)
+const open = () => {
+  visible.value = true
+}
 let options: FormOptions[] = [
   {
     type: "input",
@@ -196,7 +189,7 @@ let options: FormOptions[] = [
   },
   {
     type: "editor", // wangEditor
-    value: "123",
+    value: "",
     prop: "desc",
     label: "描述",
     placeholder: "请输入描述",
@@ -209,57 +202,22 @@ let options: FormOptions[] = [
     ],
   },
 ]
-interface uploadFile {
-  file?: UploadFile
-  fileList?: UploadFile[]
-  files?: FileList
-  response?: Response
+const cancel = (form: any) => {
+  visible.value = false
 }
-const handleRemove = ({ file, fileList }: uploadFile) => {
-  console.log(file, fileList)
-}
-const handlePreview = (file: UploadFile) => {
-  console.log(file)
-}
-const handleExceed = ({ files, fileList }: uploadFile) => {
-  ElMessage.warning(
-    `The limit is 3, you selected ${files!.length} files this time, add up to ${
-      files!.length + fileList!.length
-    } totally`
-  )
-}
-const beforeRemove = ({ file, fileList }: uploadFile) => {
-  return ElMessageBox.confirm(`Cancel the transfert of ${file!.name} ?`)
-}
-const handleSuccess = ({ response, file, fileList }: uploadFile) => {
-  console.log("handleSuccess")
-}
-const handleChange = ({ file, fileList }: uploadFile) => {
-  console.log(file)
-  console.log(fileList)
-}
-const handleBeforeUpload = (file: UploadFile) => {
-  console.log("handleBeforeUpload")
-  console.log(file)
-}
-const onSubmit = (scope: any) => {
-  scope.form.validate((valid: any) => {
+const confirm = (form: any) => {
+  console.log(form)
+
+  // 表单验证
+  form.validate((valid: any) => {
     if (valid) {
-      console.log(scope.model)
-      ElMessage.success("提交成功~~")
+      ElMessage.success("验证成功")
     } else {
-      ElMessage.error("表单填写有误，请检查")
+      ElMessage.error("验证失败")
     }
   })
-}
-let form = ref()
-// 重置表单(事件由子组件defineExpose分发出来)
-const resetForm = (scope: any) => {
-  // scope.form.resetFields()
-  console.log("====================================")
-  console.log(form)
-  console.log("====================================")
-  form.value.resetFields()
+
+  // visible.value = false
 }
 </script>
 

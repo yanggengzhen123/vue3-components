@@ -25,6 +25,7 @@ export interface FormOptions {
     | "time-select"
     | "transfer"
     | "upload"
+    | "editor"
   // 表单项的值
   value?: any
   // 表单项的label

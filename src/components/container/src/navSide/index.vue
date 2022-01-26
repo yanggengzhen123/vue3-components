@@ -88,6 +88,11 @@ let data = [
   },
   {
     icon: "ShoppingBag",
+    name: "弹出框表单",
+    index: "/modalForm",
+  },
+  {
+    icon: "ShoppingBag",
     name: "表格",
     index: "/table",
   },

@@ -10,6 +10,7 @@ import ZchooseTime from "./chooseTime"
 import ZchooseDate from "./chooseDate"
 import ZchooseCity from "./chooseCity"
 import zForm from "./form"
+import modalForm from "./modalForm"
 const component = [
   chooseArea,
   chooseIcon,
@@ -22,6 +23,7 @@ const component = [
   ZchooseDate,
   ZchooseCity,
   zForm,
+  modalForm,
 ]
 export default {
   install(app: App) {
